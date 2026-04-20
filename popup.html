@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cookie Security Analyzer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Cookie Security Analyzer</p>
+          <h1>Cookie posture dashboard</h1>
+          <p id="analysis-domain" class="hero-subtitle">Preparing analysis...</p>
+        </div>
+        <button id="export-button" class="button button-primary" type="button">
+          Export JSON
+        </button>
+      </header>
+
+      <section class="controls-panel">
+        <label class="search-wrap" for="search-input">
+          <span>Search cookies</span>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Filter by cookie name or domain"
+            autocomplete="off"
+          />
+        </label>
+        <label class="toggle-wrap" for="risk-toggle">
+          <input id="risk-toggle" type="checkbox" />
+          <span>Show only risky cookies</span>
+        </label>
+      </section>
+
+      <section id="summary-panel" class="summary-grid" aria-label="Cookie summary"></section>
+
+      <section class="table-panel">
+        <div class="table-header">
+          <div>Cookie</div>
+          <div>Domain</div>
+          <div>Flags</div>
+          <div>Risk</div>
+        </div>
+        <div id="cookie-list" class="cookie-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <template id="cookie-row-template">
+      <article class="cookie-row">
+        <button class="cookie-row-main" type="button">
+          <div class="cookie-cell cookie-primary">
+            <div class="cookie-name-line">
+              <span class="cookie-name"></span>
+              <span class="third-party-pill">Third-party</span>
+            </div>
+            <code class="cookie-value"></code>
+          </div>
+          <div class="cookie-cell">
+            <span class="cookie-domain"></span>
+            <span class="cookie-path"></span>
+          </div>
+          <div class="cookie-cell">
+            <span class="flag-line secure-flag"></span>
+            <span class="flag-line http-only-flag"></span>
+            <span class="flag-line same-site-flag"></span>
+          </div>
+          <div class="cookie-cell risk-cell">
+            <span class="risk-badge"></span>
+            <span class="risk-score"></span>
+          </div>
+        </button>
+        <div class="cookie-row-details" hidden>
+          <dl class="detail-grid">
+            <div><dt>Name</dt><dd class="detail-name"></dd></div>
+            <div><dt>Value</dt><dd class="detail-value"></dd></div>
+            <div><dt>Domain</dt><dd class="detail-domain"></dd></div>
+            <div><dt>Path</dt><dd class="detail-path"></dd></div>
+            <div><dt>Expires</dt><dd class="detail-expiration"></dd></div>
+            <div><dt>Secure</dt><dd class="detail-secure"></dd></div>
+            <div><dt>HttpOnly</dt><dd class="detail-http-only"></dd></div>
+            <div><dt>SameSite</dt><dd class="detail-same-site"></dd></div>
+            <div><dt>Third-party</dt><dd class="detail-third-party"></dd></div>
+          </dl>
+          <div class="analysis-block">
+            <h2>Risk reasoning</h2>
+            <ul class="reason-list"></ul>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="dist/popup.js"></script>
+  </body>
+  </html>

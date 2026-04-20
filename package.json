@@ -1,0 +1,10 @@
+{
+  "name": "cookie-security-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Chrome Extension (Manifest V3) for inspecting and analyzing cookie security posture.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch"
+  }
+}
