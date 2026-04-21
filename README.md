@@ -21,9 +21,3 @@ npm run build
 2. Enable Developer mode
 3. Click `Load unpacked`
 4. Select this project folder
-
-## Notes
-
-- Cookie analysis happens locally inside the extension.
-- `HttpOnly` is shown from the `chrome.cookies` API when available.
-- Risk scoring is heuristic and intended for quick auditing, not as a definitive security verdict.
