@@ -455,12 +455,13 @@ async function exportAnalyses(): Promise<void> {
   const objectUrl = URL.createObjectURL(blob);
 
   try {
-    await chrome.downloads.download({
-      url: objectUrl,
-      filename: `cookie-security-analyzer-${activeHostname || "site"}.json`,
-      saveAs: true,
-      conflictAction: "uniquify"
-    });
+    const downloadLink = document.createElement("a");
+    downloadLink.href = objectUrl;
+    downloadLink.download = `cookie-security-analyzer-${activeHostname || "site"}.json`;
+    downloadLink.style.display = "none";
+    document.body.append(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
   } finally {
     setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
   }
