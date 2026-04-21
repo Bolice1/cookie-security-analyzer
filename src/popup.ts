@@ -22,6 +22,31 @@ interface SummaryStats {
   thirdParty: number;
 }
 
+interface PopupExportCookieRecord {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  expirationDate: number | null;
+  secure: boolean;
+  httpOnly: boolean;
+  sameSite: chrome.cookies.SameSiteStatus | "unspecified";
+  session: boolean;
+  storeId: string;
+  thirdParty: boolean;
+  computedRiskScore: number;
+  riskCategory: RiskCategory;
+  reasons: string[];
+  timestamp: string;
+}
+
+interface PopupExportPayload {
+  domain: string;
+  analyzedAt: string;
+  totalCookies: number;
+  cookies: PopupExportCookieRecord[];
+}
+
 const searchInput = document.querySelector<HTMLInputElement>("#search-input");
 const riskToggle = document.querySelector<HTMLInputElement>("#risk-toggle");
 const cookieList = document.querySelector<HTMLDivElement>("#cookie-list");
@@ -428,7 +453,7 @@ function applyFilters(): void {
 }
 
 async function exportAnalyses(): Promise<void> {
-  const payload = {
+  const payload: PopupExportPayload = {
     domain: activeHostname,
     analyzedAt: activeTimestamp,
     totalCookies: allAnalyses.length,
@@ -451,19 +476,25 @@ async function exportAnalyses(): Promise<void> {
     }))
   };
 
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const objectUrl = URL.createObjectURL(blob);
+  let response:
+    | { ok: true }
+    | { ok: false; error?: string }
+    | undefined;
 
   try {
-    const downloadLink = document.createElement("a");
-    downloadLink.href = objectUrl;
-    downloadLink.download = `cookie-security-analyzer-${activeHostname || "site"}.json`;
-    downloadLink.style.display = "none";
-    document.body.append(downloadLink);
-    downloadLink.click();
-    downloadLink.remove();
-  } finally {
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+    response = await chrome.runtime.sendMessage({ type: "EXPORT_ANALYSES", payload }) as
+      | { ok: true }
+      | { ok: false; error?: string }
+      | undefined;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Export failed.";
+    throw new Error(`Export failed: ${message}`);
+  }
+
+  if (!response?.ok) {
+    throw new Error(
+      response?.error ?? "Export failed: background export handler did not respond. Reload the extension and try again."
+    );
   }
 }
 
@@ -480,9 +511,29 @@ async function initialize(): Promise<void> {
 
   searchInput.addEventListener("input", applyFilters);
   riskToggle.addEventListener("change", applyFilters);
-  exportButton.addEventListener("click", () => {
-    if (allAnalyses.length > 0) {
-      void exportAnalyses();
+  exportButton.addEventListener("click", async () => {
+    if (allAnalyses.length === 0) {
+      return;
+    }
+
+    exportButton.disabled = true;
+    const previousStatus = analysisDomain?.textContent ?? "";
+    setStatus(`Exporting JSON for ${activeHostname || "current site"}...`);
+
+    try {
+      await exportAnalyses();
+      setStatus(`Export started for ${activeHostname}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Export failed.";
+      setStatus(message);
+    } finally {
+      exportButton.disabled = false;
+
+      if (allAnalyses.length > 0) {
+        setTimeout(() => {
+          setStatus(previousStatus || `${activeHostname} • ${allAnalyses.length} cookies analyzed locally`);
+        }, 1800);
+      }
     }
   });
 

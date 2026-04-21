@@ -43,6 +43,28 @@ declare namespace chrome {
   }
 
   namespace runtime {
+    interface MessageSender {
+      tab?: tabs.Tab;
+    }
+
+    interface MessageSenderResponse {
+      ok: boolean;
+      error?: string;
+    }
+
+    interface RuntimeMessageEvent {
+      addListener(
+        callback: (
+          message: unknown,
+          sender: MessageSender,
+          sendResponse: (response?: MessageSenderResponse) => void
+        ) => boolean | void
+      ): void;
+    }
+
     const lastError: { message?: string } | undefined;
+    const onMessage: RuntimeMessageEvent;
+
+    function sendMessage(message: unknown): Promise<MessageSenderResponse | undefined>;
   }
 }

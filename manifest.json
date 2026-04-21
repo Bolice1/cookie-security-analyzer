@@ -3,8 +3,11 @@
   "name": "Cookie Security Analyzer",
   "version": "1.0.0",
   "description": "Inspect cookies for the active site and analyze their security posture.",
-  "permissions": ["cookies", "tabs"],
+  "permissions": ["cookies", "tabs", "downloads"],
   "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
   "action": {
     "default_title": "Cookie Security Analyzer",
     "default_popup": "popup.html"
